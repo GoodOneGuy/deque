@@ -74,7 +74,7 @@ func (q *Deque[T]) InsertAt(index int, value T) {
 		panic("out of range")
 	}
 
-	// 可以优化一下
+	// 实现head不变，index之后的全部移动
 	for i := q.size; i >= index; i-- {
 		real := q.realIndex(i)
 		next := q.next(real)
@@ -85,6 +85,26 @@ func (q *Deque[T]) InsertAt(index int, value T) {
 	q.arr[real] = value
 	q.tail = q.next(q.tail)
 	q.size++
+}
+
+func (q *Deque[T]) DeleteAt(index int) {
+	if q.isFull() {
+		q.resize()
+	}
+
+	if index < 0 || index >= q.size {
+		panic("out of range")
+	}
+
+	// 实现head不变，index之后的全部移动
+	for i := index; i < q.size; i++ {
+		real := q.realIndex(i)
+		next := q.next(real)
+		q.arr[real] = q.arr[next]
+	}
+
+	q.tail = q.prev(q.tail)
+	q.size--
 }
 
 func (q *Deque[T]) Front() T {

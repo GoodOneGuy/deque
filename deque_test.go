@@ -30,4 +30,12 @@ func TestDeque(t *testing.T) {
 	}
 	fmt.Println()
 	q.TestPrint()
+
+	q.DeleteAt(2)
+	for i := 0; i < q.Size(); i++ {
+		fmt.Print(q.At(i), " ")
+	}
+	fmt.Println()
+	q.TestPrint()
+
 }
