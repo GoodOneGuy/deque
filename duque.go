@@ -30,6 +30,10 @@ func (q *Deque[T]) Size() int {
 	return q.size
 }
 
+func (q *Deque[T]) Cap() int {
+	return len(q.arr)
+}
+
 func (q *Deque[T]) PutFront(v T) {
 	if q.isFull() {
 		q.resize()
