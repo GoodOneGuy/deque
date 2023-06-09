@@ -49,7 +49,7 @@ func (q *Deque[T]) PutBack(v T) {
 	q.size++
 }
 
-func (q *Deque[T]) PopFront(v T) {
+func (q *Deque[T]) PopFront() {
 	if q.size == 0 {
 		return
 	}
@@ -57,7 +57,7 @@ func (q *Deque[T]) PopFront(v T) {
 	q.size--
 }
 
-func (q *Deque[T]) PopBack(v T) {
+func (q *Deque[T]) PopBack() {
 	if q.size == 0 {
 		return
 	}
@@ -74,16 +74,37 @@ func (q *Deque[T]) InsertAt(index int, value T) {
 		panic("out of range")
 	}
 
-	// 实现head不变，index之后的全部移动
-	for i := q.size; i >= index; i-- {
-		real := q.realIndex(i)
-		next := q.next(real)
-		q.arr[next] = q.arr[real]
+	if index == 0 {
+		q.PutFront(value)
+		return
+	}
+
+	if index == q.size {
+		q.PutBack(value)
+		return
+	}
+
+	// 保证移动的元素不会超过所有元素是一半
+	if index*2 > q.size {
+		// 实现head不变，index之后的全部移动
+		for i := q.size; i >= index; i-- {
+			real := q.realIndex(i)
+			next := q.next(real)
+			q.arr[next] = q.arr[real]
+		}
+		q.tail = q.next(q.tail)
+	} else {
+		// 实现tail不变，index之前的全部移动
+		for i := 0; i <= index; i++ {
+			real := q.realIndex(i)
+			prev := q.prev(real)
+			q.arr[prev] = q.arr[real]
+		}
+		q.head = q.prev(q.head)
 	}
 
 	real := q.realIndex(index)
 	q.arr[real] = value
-	q.tail = q.next(q.tail)
 	q.size++
 }
 
@@ -96,14 +117,34 @@ func (q *Deque[T]) DeleteAt(index int) {
 		panic("out of range")
 	}
 
-	// 实现head不变，index之后的全部移动
-	for i := index; i < q.size; i++ {
-		real := q.realIndex(i)
-		next := q.next(real)
-		q.arr[real] = q.arr[next]
+	if index == 0 {
+		q.PopFront()
+		return
 	}
 
-	q.tail = q.prev(q.tail)
+	if index == q.size-1 {
+		q.PopBack()
+		return
+	}
+
+	if index*2 > q.size {
+		// 实现head不变，index之后的全部移动
+		for i := index; i < q.size; i++ {
+			real := q.realIndex(i)
+			next := q.next(real)
+			q.arr[real] = q.arr[next]
+		}
+		q.tail = q.prev(q.tail)
+	} else {
+		// 实现tail不变，index之前的全部移动
+		for i := index; i >= 0; i-- {
+			real := q.realIndex(i)
+			prev := q.prev(real)
+			q.arr[real] = q.arr[prev]
+		}
+		q.head = q.next(q.head)
+	}
+
 	q.size--
 }
 
@@ -124,6 +165,7 @@ func (q *Deque[T]) isFull() bool {
 }
 
 func (q *Deque[T]) resize() {
+	fmt.Println("resize")
 	newArr := make([]T, q.size<<1)
 	// 数据移动
 
@@ -133,6 +175,9 @@ func (q *Deque[T]) resize() {
 		copy(newArr, q.arr[q.head:])
 		copy(newArr[q.size-q.head:], q.arr[:q.tail])
 	}
+	q.head = 0
+	q.tail = q.size
+	q.arr = newArr
 }
 
 func (q *Deque[T]) prev(index int) int {

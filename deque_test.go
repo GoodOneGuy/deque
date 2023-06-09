@@ -7,14 +7,17 @@ import (
 
 func TestDeque(t *testing.T) {
 	q := NewDeque[int](10)
-	q.PutFront(1)
-	q.PutFront(2)
-	q.PutBack(3)
-	q.PutBack(4)
 
 	for i := 0; i < q.Size(); i++ {
 		fmt.Print(q.At(i), " ")
 	}
+
+	for i := 1; i < 20; i++ {
+		q.PutFront(50 - i)
+		q.PutBack(50 + i)
+		q.TestPrint()
+	}
+
 	fmt.Println()
 	q.TestPrint()
 	fmt.Println(q.At(1), " ")
